@@ -49,10 +49,17 @@ export class SavingAccountActionsComponent {
     'Unblock Account': false
   };
 
+  currencyCode: string;
+
   /**
    * @param {ActivatedRoute} route Activated Route
    */
   constructor(private route: ActivatedRoute) {
+    this.route.data.subscribe((data: { savingsAccountActionData: any }) => {
+      if (data.savingsAccountActionData) {
+        this.currencyCode = data.savingsAccountActionData.currency.code;
+      }
+    });
     const name = this.route.snapshot.params['name'];
     this.actions[name] = true;
   }

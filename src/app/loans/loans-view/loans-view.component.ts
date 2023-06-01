@@ -27,6 +27,8 @@ export class LoansViewComponent implements OnInit {
   loanDatatables: any;
   /** Recalculate Interest */
   recalculateInterest: any;
+  /** loan Arrears Delinquency config value */
+  loanDisplayArrearsDelinquency: number;
   /** Status */
   status: string;
   entityType: string;
@@ -45,9 +47,10 @@ export class LoansViewComponent implements OnInit {
               private router: Router,
               public loansService: LoansService,
               public dialog: MatDialog) {
-    this.route.data.subscribe((data: { loanDetailsData: any, loanDatatables: any}) => {
+    this.route.data.subscribe((data: { loanDetailsData: any, loanDatatables: any, loanArrearsDelinquencyConfig: any}) => {
       this.loanDetailsData = data.loanDetailsData;
       this.loanDatatables = data.loanDatatables;
+      this.loanDisplayArrearsDelinquency = data.loanArrearsDelinquencyConfig.value || 0;
       this.loanStatus = this.loanDetailsData.status;
     });
     this.loanId = this.route.snapshot.params['loanId'];
@@ -144,6 +147,17 @@ export class LoansViewComponent implements OnInit {
         });
       }
 
+      if (!this.loanDetailsData.chargedOff) {
+        // Charge-Off only when there is not Interest Recalculation and the Interest Rate is zero
+        if (!this.loanDetailsData.chargedOff && !this.loanDetailsData.isInterestRecalculationEnabled && this.loanDetailsData.interestRatePerPeriod === 0) {
+          this.buttonConfig.addButton({
+            name: 'Charge-Off',
+            icon: 'coins',
+            taskPermissionName: 'CHARGEOFF_LOAN'
+          });
+        }
+      }
+
     }
   }
 
@@ -182,6 +196,13 @@ export class LoansViewComponent implements OnInit {
         });
       }
     });
+  }
+
+  iconLoanStatusColor() {
+    if (this.loanDetailsData.chargedOff) {
+      return 'loanStatusType.chargeoff';
+    }
+    return this.loanDetailsData.status.code;
   }
 
   /**

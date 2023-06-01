@@ -10,6 +10,7 @@ import { FormDialogComponent } from 'app/shared/form-dialog/form-dialog.componen
 import { DatepickerBase } from 'app/shared/form-dialog/formfield/model/datepicker-base';
 import { FormfieldBase } from 'app/shared/form-dialog/formfield/model/formfield-base';
 import { InputBase } from 'app/shared/form-dialog/formfield/model/input-base';
+import { TooltipPosition } from '@angular/material/tooltip';
 
 /**
  * Create Loans Account Terms Step
@@ -125,7 +126,9 @@ export class LoansAccountTermsStepComponent implements OnInit, OnChanges {
         'graceOnInterestCharged': this.loansAccountTermsData.graceOnInterestCharged,
         'fixedEmiAmount': this.loansAccountTermsData.fixedEmiAmount,
         'maxOutstandingLoanBalance': this.loansAccountTermsData.maxOutstandingLoanBalance,
-        'transactionProcessingStrategyCode': this.loansAccountTermsData.transactionProcessingStrategyCode
+        'transactionProcessingStrategyCode': this.loansAccountTermsData.transactionProcessingStrategyCode,
+        'interestRateDifferential':this.loansAccountTermsData.interestRateDifferential,
+        'multiDisburseLoan': this.loansAccountTermsData.multiDisburseLoan
       });
 
       this.multiDisburseLoan = this.loansAccountTermsData.multiDisburseLoan;
@@ -207,7 +210,9 @@ export class LoansAccountTermsStepComponent implements OnInit, OnChanges {
         'graceOnInterestCharged': this.loansAccountTermsData.graceOnInterestCharged,
         'fixedEmiAmount': this.loansAccountTermsData.fixedEmiAmount,
         'maxOutstandingLoanBalance': this.loansAccountTermsData.maxOutstandingLoanBalance,
-        'transactionProcessingStrategyCode': this.loansAccountTermsData.transactionProcessingStrategyCode
+        'transactionProcessingStrategyCode': this.loansAccountTermsData.transactionProcessingStrategyCode,
+        'interestRateDifferential':this.loansAccountTermsData.interestRateDifferential,
+        'multiDisburseLoan': this.loansAccountTermsData.multiDisburseLoan
       });
     }
     this.createloansAccountTermsForm();
@@ -268,7 +273,9 @@ export class LoansAccountTermsStepComponent implements OnInit, OnChanges {
       'fixedEmiAmount': [''],
       'isTopup': [''],
       'maxOutstandingLoanBalance': [''],
-      'transactionProcessingStrategyCode': ['', Validators.required]
+      'interestRateDifferential':[''],
+      'transactionProcessingStrategyCode': ['', Validators.required],
+      'multiDisburseLoan': [false] 
     });
   }
 
@@ -300,8 +307,8 @@ export class LoansAccountTermsStepComponent implements OnInit, OnChanges {
       }),
       new InputBase({
         controlName: 'principal',
-        label: 'Principal',
-        value: (currentPrincipalAmount - this.totalMultiDisbursed),
+        label: `Principal(It should be less than equal to the ${currentPrincipalAmount})`,
+        value: '',
         type: 'number',
         required: true,
         order: 2

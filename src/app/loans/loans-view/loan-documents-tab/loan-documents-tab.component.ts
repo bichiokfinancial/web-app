@@ -32,9 +32,9 @@ export class LoanDocumentsTabComponent implements OnInit {
     private settingsService: SettingsService) {
       this.entityId = this.route.parent.snapshot.params['loanId'];
 
-    this.route.data.subscribe((data: { loanDocuments: any }) => {
-      this.getLoanDocumentsData(data.loanDocuments);
-    });
+      this.route.data.subscribe((data: { loanDocuments: any }) => {
+        this.getLoanDocumentsData(data.loanDocuments);
+      });
   }
 
   ngOnInit() { }

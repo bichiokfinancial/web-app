@@ -47,7 +47,7 @@ export class ApproveLoanComponent implements OnInit {
     this.route.data.subscribe((data: { actionButtonData: any }) => {
       this.loanData = data.actionButtonData;
     });
-    this.loanId = this.route.parent.snapshot.params['loanId'];
+    this.loanId = this.route.snapshot.params['loanId'];
   }
 
   ngOnInit() {
@@ -65,7 +65,7 @@ export class ApproveLoanComponent implements OnInit {
    */
   setApproveLoanForm() {
     this.approveLoanForm = this.formBuilder.group({
-      'approvedOnDate': [this.loanData.approvalDate && new Date(this.loanData.approvalDate), Validators.required],
+      'approvedOnDate': [this.settingsService.businessDate, Validators.required],
       'expectedDisbursementDate': [''],
       'approvedLoanAmount': [this.loanData.approvalAmount, Validators.required],
       'note': ['']

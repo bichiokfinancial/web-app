@@ -45,7 +45,7 @@ export class DisburseComponent implements OnInit {
     private router: Router,
     private dateUtils: Dates,
     private settingsService: SettingsService) {
-    this.loanId = this.route.parent.snapshot.params['loanId'];
+    this.loanId = this.route.snapshot.params['loanId'];
   }
 
 
@@ -54,7 +54,7 @@ export class DisburseComponent implements OnInit {
    * and initialize with the required values
    */
   ngOnInit() {
-    this.maxDate = this.settingsService.businessDate;
+    this.maxDate = this.settingsService.maxFutureDate;
     this.createDisbursementLoanForm();
     this.setDisbursementLoanDetails();
   }
@@ -64,7 +64,7 @@ export class DisburseComponent implements OnInit {
    */
   createDisbursementLoanForm() {
     this.disbursementLoanForm = this.formBuilder.group({
-      'actualDisbursementDate': [new Date(), Validators.required],
+      'actualDisbursementDate': [this.settingsService.businessDate, Validators.required],
       'transactionAmount': ['', Validators.required],
       'externalId': '',
       'paymentTypeId': '',

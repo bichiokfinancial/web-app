@@ -6,8 +6,9 @@
 
       <div class="profile-image-container">
         <div>
-          <img mat-card-md-image class="profile-image" matTooltip="Loans Account"
-            [src]="'assets/images/loans_account_placeholder.png'">
+          <mifosx-svg-icon [iconClass]="" iconFile="account_placeholder"
+          iconName="LOAN_ACCOUNT" iconWidth="210" matTooltip="Loan Account">
+          </mifosx-svg-icon>
         </div>
       </div>
 
@@ -18,7 +19,7 @@
             <div fxFlex="60%">
               <h3>
                 <i class="fa fa-stop" matTooltip="{{ loanDetailsData.status.value }}"
-                  [ngClass]="loanDetailsData.inArrears?'status-active-overdue':(loanDetailsData.status.code|statusLookup)"></i>
+                  [ngClass]="loanDetailsData.inArrears?'status-active-overdue':( iconLoanStatusColor() | statusLookup)"></i>
                 Loan Product: {{loanDetailsData.loanProductName}}<span
                   class="m-l-10">({{loanDetailsData.accountNo}})</span>
               </h3>
@@ -26,32 +27,36 @@
                 {{entityType}} Name: {{loanDetailsData.clientName ||
                 loanDetailsData.groupName}}<span class="m-l-10">({{loanDetailsData.clientAccountNo}})</span><br />
               </span>
-              <span class="loans-overview" *ngIf="loanDetailsData.delinquencyRange">
-                Loan Account Classification : {{loanDetailsData?.delinquencyRange.classification}}<br />
-              </span>
-              <span class="loans-overview"
-                *ngIf="loanDetailsData.delinquent && loanDetailsData.delinquent.pastDueDays > 0">
-                Past Due Days : {{loanDetailsData?.delinquent.pastDueDays | number}}<br />
-              </span>
-              <span class="loans-overview" *ngIf="loanDetailsData.delinquent && loanDetailsData.delinquent.delinquentDays > 0
-                && loanDetailsData.delinquent.pastDueDays != loanDetailsData.delinquent.delinquentDays">
-                Delinquent Days : {{loanDetailsData?.delinquent.delinquentDays | number}}
-              </span>
+              <div *ngIf="loanDisplayArrearsDelinquency != 1">
+                <span class="loans-overview" *ngIf="loanDetailsData.delinquencyRange">
+                  Loan Account Classification : {{loanDetailsData?.delinquencyRange.classification}}<br />
+                </span>
+                <span class="loans-overview"
+                  *ngIf="loanDetailsData.delinquent && loanDetailsData.delinquent.pastDueDays > 0">
+                  Past Due Days : {{loanDetailsData?.delinquent.pastDueDays | formatNumber }}<br />
+                </span>
+                <span class="loans-overview" *ngIf="loanDetailsData.delinquent && loanDetailsData.delinquent.delinquentDays > 0
+                  && loanDetailsData.delinquent.pastDueDays != loanDetailsData.delinquent.delinquentDays">
+                  Delinquent Days : {{loanDetailsData?.delinquent.delinquentDays | formatNumber }}
+                </span>
+              </div>
             </div>
 
             <div *ngIf="loanDetailsData.summary" class="loans-overview mat-typography" fxFlex="40%">
               <h3> Loan Account OverView </h3>
               <span>Current Balance: {{loanDetailsData.currency.displaySymbol}}
-                {{loanDetailsData.summary.totalOutstanding | number}}</span><br>
-              <span *ngIf="loanDetailsData.inArrears">Arrears By: {{loanDetailsData.summary.totalOverdue | number}}
+                {{loanDetailsData.summary.totalOutstanding | formatNumber}}</span><br>
+              <div *ngIf="loanDisplayArrearsDelinquency < 2">
+                <span *ngIf="loanDetailsData.inArrears">Arrears By: {{loanDetailsData.summary.totalOverdue | currency:currencyCode:'symbol-narrow':'1.2-2' }}
                 <span *ngIf="!(loanDetailsData.summary.totalOverdue>=0)">Not Provided</span>
-              </span><br>
-              <span *ngIf="loanDetailsData.inArrears">Arrears Since: {{loanDetailsData.summary.overdueSinceDate |
-                dateFormat}}
-              </span>
-              <span *ngIf="loanDetailsData.totalOverpaid && loanDetailsData.totalOverpaid > 0">
-                Overpaid By: {{loanDetailsData.currency.displaySymbol}} {{loanDetailsData.totalOverpaid | number}}
-              </span>
+                </span><br>
+                <span *ngIf="loanDetailsData.inArrears">Arrears Since: {{loanDetailsData.summary.overdueSinceDate |
+                  dateFormat}}
+                </span>
+                <span *ngIf="loanDetailsData.totalOverpaid && loanDetailsData.totalOverpaid > 0">
+                  Overpaid By: {{loanDetailsData.currency.displaySymbol}} {{loanDetailsData.totalOverpaid | formatNumber }}
+                </span>
+              </div>
             </div>
 
             <span fxFlex="auto"></span>

@@ -33,6 +33,9 @@ export class SavingsAccountViewComponent implements OnInit {
   /** Entity Type */
   entityType: string;
 
+  isActive = false;
+  currencyCode: string;
+
   /**
    * Fetches savings account data from `resolve`
    * @param {ActivatedRoute} route Activated Route
@@ -45,6 +48,7 @@ export class SavingsAccountViewComponent implements OnInit {
               public dialog: MatDialog) {
     this.route.data.subscribe((data: { savingsAccountData: any, savingsDatatables: any }) => {
       this.savingsAccountData = data.savingsAccountData;
+      this.currencyCode = this.savingsAccountData.currency.code;
       this.savingsDatatables = data.savingsDatatables;
     });
     if (this.router.url.includes('clients')) {
@@ -65,6 +69,7 @@ export class SavingsAccountViewComponent implements OnInit {
    */
   setConditionalButtons() {
     const status = this.savingsAccountData.status.value;
+    this.isActive = (status === 'Active');
     const subStatus = this.savingsAccountData.subStatus;
     this.buttonConfig = new SavingsButtonsConfiguration(status, subStatus);
     if (this.savingsAccountData.clientId) {

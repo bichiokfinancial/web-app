@@ -11,9 +11,17 @@
     </button>
   </span>
   <span *ngIf="allowWaive">
-    <button mat-raised-button color="primary" *mifosxHasPermission="'WAIVE_SAVINGSACCOUNTCHARGE'" (click)="waiveCharge()">
+    <button mat-raised-button color="primary" *mifosxHasPermission="'WAIVE_SAVINGSACCOUNTCHARGE'"
+      (click)="waiveCharge()">
       <fa-icon icon="flag" class="m-r-10"></fa-icon>
       Waive
+    </button>
+  </span>
+  <span>
+    <button mat-raised-button color="accent" *mifosxHasPermission="'ADJUSTMENT_LOANCHARGE'"
+      (click)="adjustmentCharge()">
+      <fa-icon icon="pen" class="m-r-10"></fa-icon>
+      Adjustment
     </button>
   </span>
 </div>
@@ -93,7 +101,7 @@
         </div>
 
         <div fxFlex="50%">
-          {{ chargeData.amount | number }}
+          {{ chargeData.amount | formatNumber }}
         </div>
 
         <div fxFlex="50%" class="mat-body-strong">
@@ -101,7 +109,7 @@
         </div>
 
         <div fxFlex="50%">
-          {{ chargeData.amountPaid | number }}
+          {{ chargeData.amountPaid | formatNumber }}
         </div>
 
         <div fxFlex="50%" class="mat-body-strong">
@@ -109,7 +117,7 @@
         </div>
 
         <div fxFlex="50%">
-          {{ chargeData.amountWaived | number }}
+          {{ chargeData.amountWaived | formatNumber }}
         </div>
 
         <div fxFlex="50%" class="mat-body-strong">
@@ -117,7 +125,7 @@
         </div>
 
         <div fxFlex="50%">
-          {{ chargeData.amountOutstanding | number }}
+          {{ chargeData.amountOutstanding | formatNumber }}
         </div>
 
       </div>

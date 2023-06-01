@@ -38,6 +38,7 @@ export class LoanProductSettingsStepComponent implements OnInit {
       .subscribe((isLinkedToFloatingInterestRates: any) => {
         if (isLinkedToFloatingInterestRates) {
           this.loanProductSettingsForm.get('isInterestRecalculationEnabled').setValue(true);
+          this.loanProductSettingsForm.get('allowPartialPeriodInterestCalcualtion').setValue(true);
         }
       });
 
@@ -169,6 +170,7 @@ export class LoanProductSettingsStepComponent implements OnInit {
       'holdGuaranteeFunds': [false],
       'multiDisburseLoan': [false],
       'allowAttributeConfiguration': [true],
+      'allowPartialPeriodInterestCalcualtion': [false],
       'allowAttributeOverrides': this.formBuilder.group({
         'amortizationType': [true],
         'interestType': [true],
@@ -188,10 +190,8 @@ export class LoanProductSettingsStepComponent implements OnInit {
 
     this.loanProductSettingsForm.get('interestCalculationPeriodType').valueChanges
       .subscribe((interestCalculationPeriodType: any) => {
-        if (interestCalculationPeriodType === 1) {
-          this.loanProductSettingsForm.addControl('allowPartialPeriodInterestCalcualtion', new FormControl(false));
-        } else {
-          this.loanProductSettingsForm.removeControl('allowPartialPeriodInterestCalcualtion');
+        if (interestCalculationPeriodType === 0) {
+          this.loanProductSettingsForm.patchValue({'allowPartialPeriodInterestCalcualtion': false});
         }
       });
 

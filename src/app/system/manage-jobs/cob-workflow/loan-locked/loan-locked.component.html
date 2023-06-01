@@ -1,4 +1,4 @@
-<div class="tab-container mat-typography" *ngIf="loans.length > 0">
+<div class="tab-container mat-typography" *ngIf="loans && loans.length > 0">
 
   <div fxLayout="row" fxLayoutAlign="start center">
     <div class="search-box" fxFlex="40%">
@@ -65,13 +65,13 @@
     </tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons [pageSize]="pageSize"
-    [pageIndex]="currentPage" (page)="pageEvent = handlePage($event)">
+  <mat-paginator [hidden]="!showPaginator" [pageSizeOptions]="[100, 500, 1000, 5000]" [pageSize]="pageSize"
+    [pageIndex]="currentPage" showFirstLastButtons (page)="changePaging($event)">
   </mat-paginator>
 
 </div>
 
-<div class="alert" *ngIf="loans.length === 0">
+<div class="alert" *ngIf="loans && loans.length === 0">
 
   <div class="message">
     <i class="fa fa-exclamation-circle alert-check"></i>

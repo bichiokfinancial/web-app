@@ -1,5 +1,5 @@
 /** Angular Imports */
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -17,7 +17,7 @@ import { Dates } from 'app/core/utils/dates';
   templateUrl: './prepay-loan.component.html',
   styleUrls: ['./prepay-loan.component.scss']
 })
-export class PrepayLoanComponent implements OnInit {
+export class PrepayLoanComponent implements OnInit, OnDestroy {
 
   @Input() dataObject: any;
   /** Loan Id */
@@ -52,7 +52,7 @@ export class PrepayLoanComponent implements OnInit {
     private router: Router,
     private dateUtils: Dates,
     private settingsService: SettingsService) {
-      this.loanId = this.route.parent.snapshot.params['loanId'];
+      this.loanId = this.route.snapshot.params['loanId'];
     }
 
   /**
@@ -64,6 +64,9 @@ export class PrepayLoanComponent implements OnInit {
     this.createprepayLoanForm();
     this.setPrepayLoanDetails();
     this.prepayData = this.dataObject;
+  }
+
+  ngOnDestroy(): void {
   }
 
   /**

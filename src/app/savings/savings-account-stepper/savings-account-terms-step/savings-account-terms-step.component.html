@@ -13,11 +13,6 @@
     </mat-form-field>
 
     <mat-form-field fxFlex="48%">
-      <mat-label>Currency in multiples of</mat-label>
-      <input type="number" matInput formControlName="currencyMultiple" >
-    </mat-form-field>
-
-    <mat-form-field fxFlex="48%">
       <mat-label>Nominal Annual Interest Rate</mat-label>
       <input type="number" matInput formControlName="nominalAnnualInterestRate" required>
       <mat-error>
@@ -149,8 +144,8 @@
       Previous
     </button>
     <button mat-raised-button matStepperNext>
-      Next&nbsp;&nbsp;
-      <fa-icon icon="arrow-right"></fa-icon>
+      Next
+      <fa-icon icon="arrow-right" class="m-l-10"></fa-icon>
     </button>
   </div>
 

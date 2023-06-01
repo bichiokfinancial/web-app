@@ -1,5 +1,5 @@
 /** Angular Imports */
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -16,7 +16,7 @@ import { Dates } from 'app/core/utils/dates';
   templateUrl: './make-repayment.component.html',
   styleUrls: ['./make-repayment.component.scss']
 })
-export class MakeRepaymentComponent implements OnInit {
+export class MakeRepaymentComponent implements OnInit, OnDestroy {
 
   @Input() dataObject: any;
   /** Loan Id */
@@ -45,7 +45,7 @@ export class MakeRepaymentComponent implements OnInit {
     private router: Router,
     private dateUtils: Dates,
     private settingsService: SettingsService) {
-      this.loanId = this.route.parent.snapshot.params['loanId'];
+      this.loanId = this.route.snapshot.params['loanId'];
     }
 
   /**
@@ -58,12 +58,16 @@ export class MakeRepaymentComponent implements OnInit {
     this.setRepaymentLoanDetails();
   }
 
+  ngOnDestroy(): void {
+
+  }
+
   /**
    * Creates the create close form.
    */
   createRepaymentLoanForm() {
     this.repaymentLoanForm = this.formBuilder.group({
-      'transactionDate': [new Date(), Validators.required],
+      'transactionDate': [this.settingsService.businessDate, Validators.required],
       'transactionAmount': ['', Validators.required],
       'externalId': '',
       'paymentTypeId': '',
@@ -83,7 +87,6 @@ export class MakeRepaymentComponent implements OnInit {
    */
   addPaymentDetails() {
     this.showPaymentDetails = !this.showPaymentDetails;
-    console.log(this.showPaymentDetails);
     if (this.showPaymentDetails) {
       this.repaymentLoanForm.addControl('accountNumber', new FormControl(''));
       this.repaymentLoanForm.addControl('checkNumber', new FormControl(''));
