@@ -40,6 +40,8 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
   showDeleteBotton: boolean;
   /** Row Selection Data */
   selection: SelectionModel<any>;
+  isSelected = false;
+  isLoading = false;
 
   /** Data Table Reference */
   @ViewChild('dataTable') dataTableRef: MatTable<Element>;
@@ -73,12 +75,11 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
       this.datatableName = routeParams.datatableName;
     });
     this.setData();
+    this.isSelected = false;
   }
 
   ngOnDestroy(): void {
-    this.datatableName = null;
-    this.datatableColumns = null;
-    this.datatableData = null;
+    this.resetData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -86,16 +87,37 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   setData() {
-    this.datatableColumns = [this.SELECT_NAME_FIELD].concat(this.dataObject.columnHeaders.map((columnHeader: any) => {
-      return columnHeader.columnName;
-    })
-    );
-    this.datatableData = this.dataObject.data;
-    // console.log(this.datatableData);
+    this.datatableColumns = [this.SELECT_NAME_FIELD];
+    this.dataObject.columnHeaders.filter((columnHeader: any) => {
+      if (!this.datatables.isEntityId(columnHeader.columnName)) {
+        this.datatableColumns.push(columnHeader.columnName);
+        return columnHeader;
+      }
+    });
 
+    this.datatableData = this.dataObject.data;
     if (this.dataTableRef) {
       this.dataTableRef.renderRows();
     }
+  }
+
+  resetData() {
+    this.datatableName = null;
+    this.datatableColumns = null;
+    this.datatableData = null;
+  }
+
+  getData() {
+    this.isLoading = true;
+    this.systemService.getEntityDatatable(this.entityId, this.datatableName).subscribe((dataObject: any) => {
+      this.dataObject.data = dataObject.data;
+      this.showDeleteBotton = false;
+      if (this.dataTableRef) {
+        this.setData();
+      }
+      this.isSelected = false;
+      this.isLoading = false;
+     });
   }
 
   /**
@@ -117,13 +139,8 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
           response.data.value[column] = this.dateUtils.formatDate(response.data.value[column], dataTableEntryObject.dateFormat);
         });
         dataTableEntryObject = { ...response.data.value, ...dataTableEntryObject };
-        this.systemService.addEntityDatatableEntry(this.entityId, this.datatableName, dataTableEntryObject).subscribe(() => {
-          this.systemService.getEntityDatatable(this.entityId, this.datatableName).subscribe((dataObject: any) => {
-            this.datatableData = dataObject.data;
-            if (this.dataTableRef) {
-              this.dataTableRef.renderRows();
-            }
-          });
+        this.systemService.addEntityDatatableEntry(this.entityId, this.datatableName, dataTableEntryObject).subscribe((result: any) => {
+          this.getData();
         });
       }
     });
@@ -139,13 +156,7 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
     deleteDataTableDialogRef.afterClosed().subscribe((response: any) => {
       if (response.delete) {
         this.systemService.deleteDatatableContent(this.entityId, this.datatableName).subscribe(() => {
-          this.systemService.getEntityDatatable(this.entityId, this.datatableName).subscribe((dataObject: any) => {
-            this.datatableData = dataObject.data;
-            this.showDeleteBotton = false;
-            if (this.dataTableRef) {
-              this.dataTableRef.renderRows();
-            }
-           });
+          this.getData();
         });
       }
     });
@@ -160,33 +171,47 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
     });
     deleteDataTableDialogRef.afterClosed().subscribe((response: any) => {
       if (response.delete) {
+        this.isSelected = false;
         this.selection.selected.forEach((data) => {
-          this.systemService.deleteDatatableEntry(this.entityId, data.row[1], this.datatableName).subscribe(() => {
+          this.systemService.deleteDatatableEntry(this.entityId, data.row[0], this.datatableName).subscribe(() => {
             this.datatableData.forEach((item: any, index: any) => {
-              if (item.row[1] === data.row[1]) {
-                delete this.datatableData[index];
+              if (item.row[0] === data.row[0]) {
+                this.datatableData.splice(index, 1);
+                this.dataTableRef.renderRows();
+                this.selection = new SelectionModel(true, []);
+                this.isSelected = (this.selection.selected.length > 0);
               }
             });
           });
         });
+      } else {
+        this.selection = new SelectionModel(true, []);
+        this.isSelected = (this.selection.selected.length > 0);
       }
     });
   }
 
-  formatValue(index: number, value: any): any {
-    if (this.dataObject.columnHeaders && this.dataObject.columnHeaders[index]) {
-      const columnDisplayType = this.dataObject.columnHeaders[index].columnDisplayType;
-      if (columnDisplayType === 'DATE') {
-        return this.dateFormat.transform(value);
-      } else if (columnDisplayType === 'DATETIME') {
-        return this.dateTimeFormat.transform(value);
-      } else if (columnDisplayType === 'INTEGER' || columnDisplayType === 'DECIMAL') {
-        if (typeof value === 'number') {
-          return this.numberFormat.transform(value);
-        } else {
-          return value;
+  formatValue(data: any, columnName: string): any {
+    let value: any = '';
+    if (this.dataObject.columnHeaders) {
+      let idx = 0;
+      this.dataObject.columnHeaders.some((columnHeader: any) => {
+        if (columnHeader.columnName === columnName) {
+          const columnDisplayType = columnHeader.columnDisplayType;
+          value = data.row[idx];
+          if (columnDisplayType === 'DATE') {
+            value = this.dateFormat.transform(value);
+          } else if (columnDisplayType === 'DATETIME') {
+            value = this.dateTimeFormat.transform(value);
+          } else if (columnDisplayType === 'INTEGER' || columnDisplayType === 'DECIMAL') {
+            if (typeof value === 'number') {
+              value = this.numberFormat.transform(value);
+            }
+          }
+          return true;
         }
-      }
+        idx += 1;
+      });
     }
     return value;
   }
@@ -198,7 +223,7 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   isAnySelected() {
-    return (this.selection.selected.length > 0);
+    return (this.selection.selected && this.selection.selected.length > 0);
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -208,6 +233,12 @@ export class DatatableMultiRowComponent implements OnInit, OnDestroy, OnChanges 
     } else {
       this.selection = new SelectionModel(true, []);
     }
+    this.isSelected = (this.selection.selected.length > 0);
+  }
+
+  itemToggle(data: any): void {
+    this.selection.toggle(data);
+    this.isSelected = (this.selection.selected.length > 0);
   }
 
   /** The label for the checkbox on the passed row */
